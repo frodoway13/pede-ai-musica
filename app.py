@@ -86,8 +86,8 @@ else:
         except Exception:
             pass
 
-    st.title("🎵 Pedidos de Música & Caixinha")
-    st.write("Escolha uma música do repertório, mande um recado e apoie o artista!")
+    st.title("🎵 Pedidos de Música")
+    st.write("Escolha uma música do repertório, mande um recado e APOIE o ARTISTA!")
 
     if not repertorio_df.empty:
         col_cat = "Categoria" if "Categoria" in repertorio_df.columns else repertorio_df.columns[3]
