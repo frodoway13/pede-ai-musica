@@ -86,7 +86,7 @@ else:
         except Exception:
             pass
 
-    st.title("🎵 Pedidos de Música")
+    st.header("🎵 Pedidos de Música")
     st.write("Escolha uma música do repertório, mande um recado e APOIE o ARTISTA!")
 
     if not repertorio_df.empty:
