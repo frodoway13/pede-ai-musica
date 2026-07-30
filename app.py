@@ -11,8 +11,8 @@ st.set_page_config(
 )
 
 EXCEL_FILE = "PedeAi.xlsx"
-CHAVE_PIX = "12345678900"  # Substitua pela sua chave Pix real (somente números se for CPF/Telefone)
-INSTAGRAM_LINK = "https://instagram.com/seu_usuario_aqui"  # Coloque o link do seu Instagram
+CHAVE_PIX = "00020126330014br.gov.bcb.pix0111314090568805204000053039865802BR5911LOWI81421046009Sao Paulo610901227-20062230519daqr36314241445470963044984"  # Substitua pela sua chave Pix real (somente números se for CPF/Telefone)
+INSTAGRAM_LINK = "https://www.instagram.com/willllopes?igsh=ZXlkOHhrZXRlYWpu"  # Coloque o link do seu Instagram
 
 # Função para carregar os dados das abas do Excel
 @st.cache_data(ttl=1)
