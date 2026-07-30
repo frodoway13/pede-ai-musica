@@ -1,6 +1,7 @@
 import datetime
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Configuração da página do App
 st.set_page_config(
@@ -10,7 +11,10 @@ st.set_page_config(
 )
 
 EXCEL_FILE = "PedeAi.xlsx"
-CHAVE_PIX = "00020126330014br.gov.bcb.pix0111314090568805204000053039865802BR5911LOWI81421046009Sao Paulo610901227-20062230519daqr36314241445470963044984"  # Coloque sua chave Pix aqui (somente números se for CPF/Telefone)
+CHAVE_PIX = "12345678900"  # Substitua pela sua chave Pix real (somente números se for CPF/Telefone)
+INSTAGRAM_LINK = (
+    "https://www.instagram.com/willllopes?igsh=ZXlkOHhrZXRlYWpu"  # Coloque o link do seu Instagram
+)
 
 
 # Função para carregar os dados das abas do Excel
@@ -45,8 +49,6 @@ def load_data():
 repertorio_df, pedidos_df = load_data()
 
 # --- SEGURANÇA E SEPARAÇÃO DE TELAS ---
-# O cliente só vê a escolha de música. Para ver o painel do cantor,
-# o link no navegador precisa terminar com: ?admin=1
 query_params = st.query_params
 modo_admin = query_params.get("admin") == "1"
 
@@ -72,7 +74,7 @@ if modo_admin:
 
         with st.expander(
             f"{status_cor} {row['Música Pedida']} — Mesa: {row['Mesa / Contato']}"
-            f" ({row['Name'] if 'Name' in row else row['Nome do Cliente']}){str_caixinha}"
+            f" ({row['Nome do Cliente']}){str_caixinha}"
         ):
           st.write(f"**Horário:** {row['Horário']}")
           st.write(f"**Mensagem:** {row['Mensagem/Recado']}")
@@ -113,6 +115,21 @@ if modo_admin:
 
 else:
   # --- TELA DO CLIENTE (O que o público acessa normalmente) ---
+
+  # 1. Foto do Cantor no Topo (Opcional: se tiver a foto salva como 'foto_perfil.jpg')
+  col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
+  with col_img2:
+    try:
+      st.image(
+          "foto_perfil.jpg",
+          width=150,
+          caption="Cantor / Artista",
+          use_container_width=True,
+      )
+    except Exception:
+      # Se não tiver a foto ainda, exibe um avatar padrão elegante
+      pass
+
   st.title("🎵 Pedidos de Música & Caixinha")
   st.write(
       "Escolha uma música do repertório, mande um recado e apoie o artista!"
@@ -212,25 +229,53 @@ else:
               st.success(
                   "Pedido enviado com sucesso para o palco! Fique atento. 🎸"
               )
-
-              if caixinha > 0:
-                st.divider()
-                st.subheader("☕ Apoie o Artista - Pagamento Pix")
-                st.info(
-                    f"Você escolheu uma caixinha de **R$ {caixinha:.2f}**."
-                    " Escaneie o QR Code ou clique no botão abaixo para copiar a"
-                    " chave Pix:"
-                )
-
-                try:
-                  st.image("qrcode_pix.png", width=230)
-                except Exception:
-                  pass
-
-                # Componente nativo do Streamlit com botão de copiar rápido
-                st.code(CHAVE_PIX, language="text")
+              st.session_tag_pedido_enviado = True
 
             except Exception as e:
               st.error(f"Erro ao salvar o pedido na planilha: {e}")
+
+      # Se o pedido foi enviado, exibimos a âncora do Pix e rolando a tela automaticamente para ela
+      if st.session_get("session_tag_pedido_enviado", False):
+        st.markdown("<div id='secao_pix'></div>", unsafe_allow_html=True)
+
+        st.divider()
+        st.subheader("☕ Apoie o Artista - Pagamento Pix")
+        st.info(
+            "Seu pedido já está no palco! Para dar aquela força, escaneie o"
+            " QR Code abaixo ou copie a chave Pix:"
+        )
+
+        try:
+          st.image("qrcode_pix.png", width=230)
+        except Exception:
+          st.warning(
+              "Dica: Salve o QR Code como 'qrcode_pix.png' na pasta do projeto."
+          )
+
+        # Rótulo amigável pedido
+        st.text_input(
+            "Chave Pix (Copia e Cola):", CHAVE_PIX, key="input_copia_cola"
+        )
+
+        # Bloco amigável para o Instagram (sem atrapalhar o Pix)
+        st.markdown("---")
+        st.write(
+            "📸 **Curtiu o som?** Aproveite para seguir o artista nas redes"
+            " sociais e acompanhar a agenda de shows!"
+        )
+        st.link_button("✨ Seguir no Instagram", INSTAGRAM_LINK)
+
+        # Script em JavaScript puro para fazer o navegador rolar suavemente até a seção do Pix
+        components.html(
+            """
+                <script>
+                    const element = window.parent.document.getElementById('secao_pix');
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                </script>
+                """,
+            height=0,
+        )
   else:
     st.error("A tabela de repertório está vazia ou não foi carregada.")
