@@ -11,8 +11,8 @@ st.set_page_config(
 )
 
 EXCEL_FILE = "PedeAi.xlsx"
-CHAVE_PIX = "00020126330014br.gov.bcb.pix0111314090568805204000053039865802BR5911LOWI81421046009Sao Paulo610901227-20062230519daqr36314241445470963044984"  # Substitua pela sua chave Pix real (somente números se for CPF/Telefone)
-INSTAGRAM_LINK = "https://www.instagram.com/willllopes?igsh=ZXlkOHhrZXRlYWpu" # Coloque o link do seu Instagram
+CHAVE_PIX = "12345678900"  # Substitua pela sua chave Pix real (somente números se for CPF/Telefone)
+INSTAGRAM_LINK = "https://instagram.com/seu_usuario_aqui"  # Coloque o link do seu Instagram
 
 # Função para carregar os dados das abas do Excel
 @st.cache_data(ttl=1)
@@ -121,7 +121,6 @@ else:
         if musica_escolhida:
             st.subheader(f"Pedir: {musica_escolhida}")
             
-            # Usando inputs normais em vez de st.form para guardar o estado com segurança
             nome_cliente = st.text_input("Seu Nome:", key="input_nome")
             mesa = st.text_input("Sua Mesa / Local (Ex: Mesa 04):", key="input_mesa")
             mensagem = st.text_area("Mensagem / Dedicatória:", key="input_msg")
@@ -151,7 +150,6 @@ else:
                             repertorio_df.to_excel(writer, sheet_name="Repertorio", index=False)
                             atualizado_df.to_excel(writer, sheet_name="Pedidos", index=False)
                         
-                        # Salva na memória que o pedido foi enviado com sucesso
                         st.session_state["pedido_enviado"] = True
                         st.session_state["valor_caixinha_atual"] = caixinha
                         st.success("Pedido enviado com sucesso para o palco! Fique atento. 🎸")
@@ -175,9 +173,11 @@ else:
 
             st.text_input("Chave Pix (Copia e Cola):", CHAVE_PIX, key="copia_cola_pix")
 
+            # Bloco do Instagram com texto maior e mais destacado
             st.markdown("---")
-            st.write("📸 **Curtiu o som?** Aproveite para seguir o artista nas redes sociais e acompanhar a agenda de shows!")
-            st.link_button("✨ Seguir no Instagram", INSTAGRAM_LINK)
+            st.markdown("### 📱 Curtiu o som e o atendimento?")
+            st.markdown("Não deixe de acompanhar os próximos shows, repertórios e bastidores! Siga o perfil oficial no Instagram:")
+            st.link_button("📸 Seguir @seu_usuario no Instagram", INSTAGRAM_LINK, use_container_width=True)
 
             # Rola a tela automaticamente para focar no Pix
             components.html("""
