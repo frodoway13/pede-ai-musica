@@ -235,7 +235,7 @@ else:
               st.error(f"Erro ao salvar o pedido na planilha: {e}")
 
       # Se o pedido foi enviado, exibimos a âncora do Pix e rolando a tela automaticamente para ela
-      if st.session_get("session_tag_pedido_enviado", False):
+      if st.session_state.get("session_tag_pedido_enviado", False):
         st.markdown("<div id='secao_pix'></div>", unsafe_allow_html=True)
 
         st.divider()
