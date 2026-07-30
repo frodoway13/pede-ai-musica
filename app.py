@@ -11,8 +11,8 @@ st.set_page_config(
 )
 
 EXCEL_FILE = "PedeAi.xlsx"
-CHAVE_PIX = "00020126330014br.gov.bcb.pix0111314090568805204000053039865802BR5911LOWI81421046009Sao Paulo610901227-20062230519daqr36314241445470963044984"  # Substitua pela sua chave Pix real (somente números se for CPF/Telefone)
-INSTAGRAM_LINK = "https://www.instagram.com/willllopes?igsh=ZXlkOHhrZXRlYWpu"  # Coloque o link do seu Instagram
+CHAVE_PIX = "12345678900"  # Substitua pela sua chave Pix real (somente números se for CPF/Telefone)
+INSTAGRAM_LINK = "https://instagram.com/seu_usuario_aqui"  # Coloque o link do seu Instagram
 
 # Função para carregar os dados das abas do Excel
 @st.cache_data(ttl=1)
@@ -28,7 +28,7 @@ def load_data():
     except Exception:
         df_pedidos = pd.DataFrame(columns=[
             "Horário", "Música Pedida", "Nome do Cliente", 
-            "Mesa / Contato", "Mensagem/Recado", "Valor Caixinha (R$)", "Status do Pedido"
+            "Mensagem/Recado", "Valor Caixinha (R$)", "Status do Pedido"
         ])
     return df_repertorio, df_pedidos
 
@@ -54,7 +54,7 @@ if modo_admin:
                 val_caixinha = row.get("Valor Caixinha (R$)", 0.0)
                 str_caixinha = f" - 💰 R$ {val_caixinha:.2f}" if pd.notna(val_caixinha) and val_caixinha > 0 else ""
                 
-                with st.expander(f"{status_cor} {row['Música Pedida']} — Mesa: {row['Mesa / Contato']} ({row['Nome do Cliente']}){str_caixinha}"):
+                with st.expander(f"{status_cor} {row['Música Pedida']} — Cliente: {row['Nome do Cliente']}{str_caixinha}"):
                     st.write(f"**Horário:** {row['Horário']}")
                     st.write(f"**Mensagem:** {row['Mensagem/Recado']}")
                     st.write(f"**Caixinha:** R$ {val_caixinha:.2f}" if pd.notna(val_caixinha) else "**Caixinha:** R$ 0,00")
@@ -122,7 +122,6 @@ else:
             st.subheader(f"Pedir: {musica_escolhida}")
             
             nome_cliente = st.text_input("Seu Nome:", key="input_nome")
-            mesa = st.text_input("Sua Mesa / Local (Ex: Mesa 04):", key="input_mesa")
             mensagem = st.text_area("Mensagem / Dedicatória:", key="input_msg")
             caixinha = st.selectbox("Apoie o Artista com uma Caixinha (Pix):", [0.0, 5.0, 10.0, 20.0, 50.0], key="input_caixinha")
 
@@ -136,7 +135,6 @@ else:
                         "Horário": datetime.datetime.now().strftime("%H:%M"),
                         "Música Pedida": musica_escolhida,
                         "Nome do Cliente": nome_cliente,
-                        "Mesa / Contato": mesa,
                         "Mensagem/Recado": mensagem,
                         "Valor Caixinha (R$)": caixinha,
                         "Status do Pedido": "Pendente"
@@ -173,11 +171,11 @@ else:
 
             st.text_input("Chave Pix (Copia e Cola):", CHAVE_PIX, key="copia_cola_pix")
 
-            # Bloco do Instagram com texto maior e mais destacado
+            # Bloco do Instagram ampliado
             st.markdown("---")
             st.markdown("### 📱 Curtiu o som e o atendimento?")
             st.markdown("Não deixe de acompanhar os próximos shows, repertórios e bastidores! Siga o perfil oficial no Instagram:")
-            st.link_button("📸 Seguir @seu_usuario no Instagram", INSTAGRAM_LINK, use_container_width=True)
+            st.link_button("📸 Seguir no Instagram", INSTAGRAM_LINK, use_container_width=True)
 
             # Rola a tela automaticamente para focar no Pix
             components.html("""
