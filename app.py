@@ -103,18 +103,27 @@ st.markdown(
             color: #f4f2ff !important;
         }
 
-        /* Menu suspenso (lista de opções) que abre ao clicar */
-        div[data-baseweb="popover"] ul[role="listbox"],
-        div[data-baseweb="menu"] {
+        /* Menu suspenso (lista de opções) que abre ao clicar
+           -> cobre TODAS as variações de nome que o componente
+              da Streamlit pode usar dependendo da versão */
+        div[data-baseweb="popover"],
+        div[data-baseweb="popover"] div,
+        div[data-baseweb="menu"],
+        ul[data-baseweb="menu"],
+        [data-testid="stSelectboxVirtualDropdown"],
+        [data-testid="stVirtualDropdown"] {
             background-color: #24243e !important;
         }
-        div[data-baseweb="popover"] li[role="option"],
-        div[data-baseweb="menu"] li {
-            background-color: #24243e !important;
+        div[data-baseweb="popover"] *,
+        div[data-baseweb="menu"] *,
+        [data-testid="stSelectboxVirtualDropdown"] *,
+        [data-testid="stVirtualDropdown"] * {
             color: #f4f2ff !important;
         }
-        div[data-baseweb="popover"] li[role="option"]:hover,
-        div[data-baseweb="popover"] li[aria-selected="true"] {
+        div[data-baseweb="popover"] li:hover,
+        div[data-baseweb="popover"] li[aria-selected="true"],
+        div[data-baseweb="popover"] [role="option"]:hover,
+        div[data-baseweb="popover"] [aria-selected="true"] {
             background-color: #ff3c78 !important;
             color: #ffffff !important;
         }
