@@ -1,6 +1,8 @@
+import base64
 import datetime
 import sqlite3
 from contextlib import contextmanager
+from io import BytesIO
 
 import pandas as pd
 import streamlit as st
@@ -18,7 +20,7 @@ st.set_page_config(
 
 EXCEL_FILE = "PedeAi.xlsx"          # só o repertório vive aqui (somente leitura)
 DB_FILE = "pedidos.db"              # pedidos vivem num banco leve (rápido de gravar/atualizar)
-CHAVE_PIX = "00020126330014br.gov.bcb.pix0111314090568805204000053039865802BR5911LOWI81421046009Sao Paulo610901227-20062230519daqr36314241445470963044984"
+CHAVE_PIX = "11977150185"
 INSTAGRAM_LINK = "https://www.instagram.com/willllopes?igsh=ZXlkOHhrZXRlYWpu"
 
 VALORES_CAIXINHA = [0.0, 5.0, 10.0, 20.0, 50.0]
@@ -97,9 +99,13 @@ st.markdown(
         [data-testid="stMetricValue"] { color: #ffd166; }
 
         /* Campo de seleção (fechado) */
-        [data-baseweb="select"] > div {
-            background: rgba(255,255,255,0.08) !important;
+        [data-baseweb="select"] > div,
+        [data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+            background-color: #24243e !important;
             border-color: rgba(255,255,255,0.25) !important;
+            color: #f4f2ff !important;
+        }
+        [data-baseweb="select"] > div * {
             color: #f4f2ff !important;
         }
 
@@ -131,6 +137,66 @@ st.markdown(
         /* Campo de busca dentro do selectbox */
         [data-baseweb="select"] input {
             color: #f4f2ff !important;
+        }
+
+        /* Botão grande do Instagram com foto de fundo */
+        .insta-button {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            width: 100%;
+            height: 220px;
+            border-radius: 20px;
+            background-size: cover;
+            background-position: center;
+            text-decoration: none;
+            overflow: hidden;
+            position: relative;
+            margin-top: 0.6rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            transition: transform 0.15s ease;
+        }
+        .insta-button:hover {
+            transform: scale(1.015);
+        }
+        .insta-button::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.75) 100%);
+        }
+        .insta-button span {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            padding: 1.1rem;
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* Campos de texto (nome, mensagem/dedicatória, chave Pix)
+           -> usa data-testid (mais estável entre versões do Streamlit)
+              + uma regra coringa em cima de input/textarea como garantia */
+        [data-testid="stTextInput"] input,
+        [data-testid="stTextArea"] textarea,
+        [data-testid="stNumberInput"] input,
+        [data-testid="stTextInput"] > div,
+        [data-testid="stTextArea"] > div,
+        input[type="text"],
+        textarea {
+            background-color: #24243e !important;
+            color: #f4f2ff !important;
+            border: 1px solid rgba(255,255,255,0.25) !important;
+            -webkit-text-fill-color: #f4f2ff !important;
+        }
+        [data-testid="stTextInput"] input::placeholder,
+        [data-testid="stTextArea"] textarea::placeholder,
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(244,242,255,0.5) !important;
+            -webkit-text-fill-color: rgba(244,242,255,0.5) !important;
         }
     </style>
     """,
@@ -213,6 +279,16 @@ def carregar_imagem_corrigida(caminho):
     ou de lado."""
     imagem = Image.open(caminho)
     return ImageOps.exif_transpose(imagem)
+
+
+def imagem_para_base64(caminho):
+    """Converte uma imagem local em uma string base64, para poder
+    usá-la como background-image dentro de um botão em HTML/CSS
+    (o Streamlit não serve arquivos locais por URL diretamente)."""
+    imagem = carregar_imagem_corrigida(caminho).convert("RGB")
+    buffer = BytesIO()
+    imagem.save(buffer, format="JPEG", quality=85)
+    return base64.b64encode(buffer.getvalue()).decode()
 
 
 # =========================================================
@@ -378,11 +454,24 @@ else:
             except Exception:
                 st.info("Dica: salve o QR Code como 'qrcode_pix.png' na pasta do projeto.")
 
-            st.text_input("Chave Pix (Copia e Cola):", CHAVE_PIX, key="copia_cola_pix")
+            st.text_input("Chave Pix:", CHAVE_PIX, key="copia_cola_pix")
 
             st.markdown("### 📱 Curtiu o som e o atendimento?")
             st.write("Siga o perfil oficial para acompanhar os próximos shows e bastidores:")
-            st.link_button("📸 Seguir no Instagram", INSTAGRAM_LINK, use_container_width=True)
+
+            try:
+                foto_b64 = imagem_para_base64("foto_perfil.jpg")
+                st.markdown(
+                    f"""
+                    <a href="{INSTAGRAM_LINK}" target="_blank" class="insta-button"
+                       style="background-image: url('data:image/jpeg;base64,{foto_b64}');">
+                        <span>📸 Seguir no Instagram</span>
+                    </a>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            except Exception:
+                st.link_button("📸 Seguir no Instagram", INSTAGRAM_LINK, use_container_width=True)
 
             components.html(
                 """
